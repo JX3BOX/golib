@@ -18,11 +18,11 @@ var client = http.Client{
 }
 
 type Service struct {
-	API       string
-	AppId     string
-	ChannelId string
-	SecretKey string
-	fnSwitch  ISwitch // 是否进行过滤开关
+	API       string  `json:"api" yaml:"api"`
+	AppId     string  `json:"appId" yaml:"appId"`
+	ChannelId string  `json:"channelId" yaml:"channelId"`
+	SecretKey string  `json:"secretKey" yaml:"secretKey"`
+	fnSwitch  ISwitch `json:"-" yaml:"-"` // 是否进行过滤开关
 }
 
 type Result struct {
