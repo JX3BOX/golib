@@ -1,11 +1,9 @@
 package worldfilter
 
 import (
-	_ "embed"
 	"testing"
 )
 
-//go:embed key
 var sk string
 
 func TestFilter(t *testing.T) {
