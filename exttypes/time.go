@@ -50,6 +50,14 @@ func (j JsonTime) IsZero() bool {
 	return time.Time(j).IsZero()
 }
 
+func (j JsonTime) String() string {
+	return time.Time(j).Format(dataTimeFormat)
+}
+
+func (j JsonTime) Format(layout string) string {
+	return time.Time(j).Format(layout)
+}
+
 func Now() JsonTime {
 	return JsonTime(time.Now())
 }
