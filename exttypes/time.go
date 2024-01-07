@@ -43,6 +43,9 @@ func (j *JsonTime) FromDB(b []byte) error {
 
 func (j *JsonTime) ToDB() ([]byte, error) {
 	raw := time.Time(*j).Format(dataTimeFormat)
+	if raw == "0001-01-01 00:00:00" {
+		return nil, nil
+	}
 	return []byte(raw), nil
 }
 
