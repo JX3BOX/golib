@@ -1,11 +1,21 @@
 package exttypes
 
 import (
+	"reflect"
 	"strings"
 	"time"
 )
 
 type JsonTime time.Time
+
+// 用于iris的path,params,query参数序列化
+func JsonTimeConverter(value string) reflect.Value {
+	v, err := time.ParseInLocation("20060102150405", value, time.Local)
+	if err != nil {
+		return reflect.ValueOf(JsonTime{})
+	}
+	return reflect.ValueOf(v)
+}
 
 const dataTimeFormat = "2006-01-02 15:04:05"
 
