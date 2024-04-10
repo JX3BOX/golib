@@ -71,6 +71,10 @@ func (j JsonTime) Format(layout string) string {
 	return time.Time(j).Format(layout)
 }
 
+func (j JsonTime) ToJsonDate() JsonDate {
+	return JsonDate(time.Time(j))
+}
+
 func Now() JsonTime {
 	return JsonTime(time.Now())
 }
