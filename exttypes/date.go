@@ -70,3 +70,7 @@ func (j JsonDate) String() string {
 func (j JsonDate) Format(layout string) string {
 	return time.Time(j).Format(layout)
 }
+
+func (j JsonDate) ToJsonTime() JsonTime {
+	return JsonTime(j.ToTime())
+}
