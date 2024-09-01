@@ -27,3 +27,16 @@ func (u *Uint64Array) FromDB(b []byte) error {
 func (u *Uint64Array) ToDB() ([]byte, error) {
 	return json.Marshal(u)
 }
+
+type DateArray[T any] []T
+
+func (u *DateArray[T]) FromDB(b []byte) error {
+	if len(b) == 0 {
+		return nil
+	}
+	return json.Unmarshal(b, u)
+}
+
+func (u *DateArray[T]) ToDB() ([]byte, error) {
+	return json.Marshal(u)
+}
