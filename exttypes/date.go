@@ -1,6 +1,7 @@
 package exttypes
 
 import (
+	"database/sql/driver"
 	"reflect"
 	"strings"
 	"time"
@@ -57,6 +58,39 @@ func (j *JsonDate) ToDB() ([]byte, error) {
 		return nil, nil
 	}
 	return []byte(raw), nil
+}
+
+// Value 实现 driver.Valuer 接口，用于数据库写入（兼容 PostgreSQL）
+func (j JsonDate) Value() (driver.Value, error) {
+	if j.IsZero() {
+		return nil, nil
+	}
+	t := time.Time(j)
+	if t.Year() == 1 {
+		return nil, nil
+	}
+	return t, nil
+}
+
+// Scan 实现 sql.Scanner 接口，用于数据库读取（兼容 PostgreSQL）
+func (j *JsonDate) Scan(value interface{}) error {
+	if value == nil {
+		*j = JsonDate{}
+		return nil
+	}
+
+	switch v := value.(type) {
+	case time.Time:
+		*j = JsonDate(v)
+		return nil
+	case []byte:
+		return j.FromDB(v)
+	case string:
+		return j.FromDB([]byte(v))
+	default:
+		*j = JsonDate{}
+		return nil
+	}
 }
 
 func (j JsonDate) IsZero() bool {

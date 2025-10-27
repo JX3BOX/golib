@@ -1,6 +1,10 @@
 package exttypes
 
-import "encoding/json"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
+)
 
 type JsonValue struct {
 	JsonByte []byte
@@ -14,6 +18,29 @@ func (j *JsonValue) FromDB(b []byte) error {
 }
 
 func (j *JsonValue) ToDB() ([]byte, error) {
+	if j.Content != nil && len(j.Content) > 0 {
+		return j.Content, nil
+	}
+	return json.Marshal(j.JsonData)
+}
+
+func (j *JsonValue) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("failed to unmarshal JSONB value: %v", value)
+	}
+	if len(bytes) == 0 {
+		j.JsonData = nil
+		return nil
+	}
+	j.JsonByte = bytes
+	return json.Unmarshal(bytes, &j.JsonData)
+}
+
+func (j JsonValue) Value() (driver.Value, error) {
+	if j.JsonData == nil {
+		return nil, nil
+	}
 	if j.Content != nil && len(j.Content) > 0 {
 		return j.Content, nil
 	}

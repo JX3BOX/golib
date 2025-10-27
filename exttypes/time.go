@@ -1,6 +1,7 @@
 package exttypes
 
 import (
+	"database/sql/driver"
 	"reflect"
 	"strings"
 	"time"
@@ -48,7 +49,6 @@ func (j *JsonTime) UnmarshalJSON(b []byte) error {
 func (j *JsonTime) FromDB(b []byte) error {
 	j.UnmarshalJSON(b)
 	return nil
-
 }
 
 func (j *JsonTime) ToDB() ([]byte, error) {
@@ -57,6 +57,39 @@ func (j *JsonTime) ToDB() ([]byte, error) {
 		return nil, nil
 	}
 	return []byte(raw), nil
+}
+
+// Value 实现 driver.Valuer 接口，用于数据库写入（兼容 PostgreSQL）
+func (j JsonTime) Value() (driver.Value, error) {
+	if j.IsZero() {
+		return nil, nil
+	}
+	t := time.Time(j)
+	if t.Year() == 1 {
+		return nil, nil
+	}
+	return t, nil
+}
+
+// Scan 实现 sql.Scanner 接口，用于数据库读取（兼容 PostgreSQL）
+func (j *JsonTime) Scan(value interface{}) error {
+	if value == nil {
+		*j = JsonTime{}
+		return nil
+	}
+
+	switch v := value.(type) {
+	case time.Time:
+		*j = JsonTime(v)
+		return nil
+	case []byte:
+		return j.FromDB(v)
+	case string:
+		return j.FromDB([]byte(v))
+	default:
+		*j = JsonTime{}
+		return nil
+	}
 }
 
 func (j JsonTime) IsZero() bool {
