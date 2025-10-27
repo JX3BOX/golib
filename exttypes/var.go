@@ -82,3 +82,21 @@ func (u *DataArray[T]) FromDB(b []byte) error {
 func (u *DataArray[T]) ToDB() ([]byte, error) {
 	return json.Marshal(u)
 }
+func (u *DataArray[T]) Scan(value interface{}) error {
+	bytes, ok := value.([]byte)
+	if !ok {
+		return fmt.Errorf("failed to unmarshal JSONB value: %v", value)
+	}
+	if len(bytes) == 0 {
+		*u = DataArray[T]{}
+		return nil
+	}
+	return json.Unmarshal(bytes, u)
+}
+
+func (u DataArray[T]) Value() (driver.Value, error) {
+	if len(u) == 0 {
+		return json.Marshal([]T{})
+	}
+	return json.Marshal(u)
+}
