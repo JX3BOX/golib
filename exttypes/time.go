@@ -18,6 +18,28 @@ func JsonTimeConverter(value string) reflect.Value {
 	return reflect.ValueOf(v)
 }
 
+// 为 JsonTime 实现 encoding.TextUnmarshaler 接口，支持 Iris URL 参数绑定
+func (j *JsonTime) UnmarshalText(data []byte) error {
+	raw := strings.TrimSpace(string(data))
+	if raw == "" {
+		*j = JsonTime{}
+		return nil
+	}
+
+	// 支持两种格式：YYYYMMDDHHMMSS（来自URL参数）和 YYYY-MM-DD HH:MM:SS（来自其他来源）
+	now, err := time.ParseInLocation("20060102150405", raw, time.Local)
+	if err != nil {
+		now, err = time.ParseInLocation("2006-01-02 15:04:05", raw, time.Local)
+		if err != nil {
+			*j = JsonTime{}
+			return nil
+		}
+	}
+
+	*j = JsonTime(now)
+	return nil
+}
+
 const dataTimeFormat = "2006-01-02 15:04:05"
 
 func GetJsonTime(t time.Time) JsonTime {
