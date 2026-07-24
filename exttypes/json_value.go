@@ -13,7 +13,8 @@ type JsonValue struct {
 }
 
 func (j *JsonValue) FromDB(b []byte) error {
-	j.JsonByte = b
+	j.JsonByte = make([]byte, len(b))
+	copy(j.JsonByte, b)
 	return json.Unmarshal(b, &j.JsonData)
 }
 
@@ -33,7 +34,8 @@ func (j *JsonValue) Scan(value interface{}) error {
 		j.JsonData = nil
 		return nil
 	}
-	j.JsonByte = bytes
+	j.JsonByte = make([]byte, len(bytes))
+	copy(j.JsonByte, bytes)
 	return json.Unmarshal(bytes, &j.JsonData)
 }
 
